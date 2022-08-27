@@ -16,3 +16,23 @@
  */
 
 package com.example.android.devbyteviewer.database
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+
+// create an interface and
+@Dao
+interface VideoDao {
+    // gets all videos from the cache
+    // annotate with select all query
+    @Query("select * from databasevideo")
+    fun getVideos(): List<DatabaseVideo>
+
+    // we need a way to store values in the cache
+    // vararg means variable arguments - function takes an unknown number of arguments
+    // set conflict strategy to replace
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(vararg videos: DatabaseVideo)
+}
