@@ -17,6 +17,7 @@
 
 package com.example.android.devbyteviewer.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -28,7 +29,9 @@ interface VideoDao {
     // gets all videos from the cache
     // annotate with select all query
     @Query("select * from databasevideo")
-    fun getVideos(): List<DatabaseVideo>
+    //when we return a live data, room will do the database query in the background
+    //it will update the live data anytime new data is written to the table
+    fun getVideos(): LiveData<List<DatabaseVideo>>
 
     // we need a way to store values in the cache
     // vararg means variable arguments - function takes an unknown number of arguments
