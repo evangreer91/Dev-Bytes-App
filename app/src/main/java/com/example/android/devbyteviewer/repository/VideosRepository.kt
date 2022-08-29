@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.example.android.devbyteviewer.database.VideosDatabase
 import com.example.android.devbyteviewer.database.asDomainModel
+import com.example.android.devbyteviewer.domain.Video
 import com.example.android.devbyteviewer.network.Network
 import com.example.android.devbyteviewer.network.asDatabaseModel
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,9 @@ import kotlinx.coroutines.withContext
 // this is called dependency injection
 class VideosRepository(private val database: VideosDatabase) {
 
+    // we want a live data with a list of videos
+    // we call getVideos on the database to return a live data with a list of database video objects
+    // convert the list of DatabaseVideo to a list of Video using asDomainModel
     val videos: LiveData<List<Video>> = Transformations.map(database.videoDao.getVideos()) {
        it.asDomainModel()
     }
