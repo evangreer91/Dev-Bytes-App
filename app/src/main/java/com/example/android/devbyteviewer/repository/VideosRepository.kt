@@ -16,3 +16,36 @@
  */
 
 package com.example.android.devbyteviewer.repository
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import com.example.android.devbyteviewer.database.VideosDatabase
+import com.example.android.devbyteviewer.database.asDomainModel
+import com.example.android.devbyteviewer.network.Network
+import com.example.android.devbyteviewer.network.asDatabaseModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+// repositories are regular classes and are responsible for providing a simple API to our data sources
+// By taking a database object as a constructor parameter, we don't need to keep a reference to Android context in our repository
+// this is called dependency injection
+class VideosRepository(private val database: VideosDatabase) {
+
+    val videos: LiveData<List<Video>> = Transformations.map(database.videoDao.getVideos()) {
+       it.asDomainModel()
+    }
+
+    // refreshVideos is responsible for updating the offline cache
+    // database call to save new videos to the database
+    // reading and writing from a disk is very slow
+    suspend fun refreshVideos() {
+        withContext(Dispatchers.IO) {
+            // make a network to get the playlist and use the await function to tell the coroutine to suspend until its available
+            // we could put this network fetch outside of our withContext since it doesn't block a thread or do disk I/O
+            val playlist = Network.devbytes.getPlaylist().await()
+            // make the database call by using insertAll on videoDao
+            // map network results to database objects
+            database.videoDao.insertAll(*playlist.asDatabaseModel())
+        }
+    }
+}
