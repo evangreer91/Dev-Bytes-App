@@ -59,4 +59,3 @@ fun getDatabase(context: Context): VideosDatabase {
 
     return INSTANCE
 }
-
