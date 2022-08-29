@@ -17,25 +17,40 @@
 
 package com.example.android.devbyteviewer.database
 
+import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
-// create an interface and
+// create an interface videoDao
 @Dao
 interface VideoDao {
-    // gets all videos from the cache
-    // annotate with select all query
     @Query("select * from databasevideo")
-    //when we return a live data, room will do the database query in the background
-    //it will update the live data anytime new data is written to the table
     fun getVideos(): LiveData<List<DatabaseVideo>>
 
-    // we need a way to store values in the cache
-    // vararg means variable arguments - function takes an unknown number of arguments
-    // set conflict strategy to replace
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg videos: DatabaseVideo)
+}
+
+//implement a database
+//Room requires we tell it all entities that this database holds
+@Database(entities = [DatabaseVideo::class], version = 1)
+abstract class VideosDatabase: RoomDatabase() {
+   abstract val videoDao: VideoDao
+}
+
+private lateinit var INSTANCE: VideosDatabase
+
+// public way to access the database will be through getDatabase
+fun getDatabase(context: Context): VideosDatabase {
+    // makes initialization thread-safe
+    synchronized(VideosDatabase::class.java) {
+        // check if instance is initialized
+        if (!::INSTANCE.isInitialized) {
+            // use database builder to create a new instance
+            INSTANCE = Room.databaseBuilder(context.applicationContext,
+                VideosDatabase::class.java,
+                "videos").build()
+        }
+    }
+    return INSTANCE
 }
