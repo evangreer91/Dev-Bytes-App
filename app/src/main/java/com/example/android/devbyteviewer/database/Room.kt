@@ -37,7 +37,6 @@ interface VideoDao {
 abstract class VideosDatabase: RoomDatabase() {
     // accesses the video DAO
     abstract val videoDao: VideoDao
-
 }
 
 // lets define getDatabase
